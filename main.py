@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from PySide6.QtWidgets import QApplication
 from src.gui import MainWindow
 from src.database import DatabaseManager # Importar la clase
+from src.views.app_layout  import AppLayout
 
 load_dotenv() # Cargar variables del .env
 

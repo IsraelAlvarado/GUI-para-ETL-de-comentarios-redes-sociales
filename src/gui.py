@@ -1,53 +1,54 @@
+"""
+gui.py — Ventana principal de la aplicación.
+Gestiona login y el cambio al layout principal.
+"""
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
-from src.views.login_view import LoginWidget
-from src.views.dashboard_view import AppLayout
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
 
-# ── Credenciales válidas: usuario → contraseña ────────────────────────────────
-_VALID_CREDENTIALS = {
+from src.views.login_view  import LoginWidget
+from src.views.app_layout  import AppLayout
+
+# Credenciales válidas: usuario → contraseña
+_CREDENTIALS = {
     "admin": "root",
     "user":  "root",
 }
+
 
 class MainWindow(QMainWindow):
     def __init__(self, db_manager):
         super().__init__()
         self.db = db_manager
         self.setWindowTitle("ETL Sentiment App")
-        self.resize(900, 580)
-        self.setMinimumSize(700, 450)
+        self.resize(1000, 640)
+        self.setMinimumSize(750, 480)
 
-        self.main_stack = QStackedWidget()
-        self.setCentralWidget(self.main_stack)
+        self.stack = QStackedWidget()
+        self.setCentralWidget(self.stack)
 
-        # Índice 0 → Login
         self.login_page = LoginWidget(self.handle_login)
-        self.main_stack.addWidget(self.login_page)
+        self.stack.addWidget(self.login_page)   # índice 0
 
-    # ── FIX: recibe y valida la contraseña ────────────────────────────────────
     def handle_login(self, username: str, password: str):
-        expected = _VALID_CREDENTIALS.get(username)
+        expected = _CREDENTIALS.get(username)
         if expected is not None and password == expected:
-            if self.main_stack.count() > 1:
-                old = self.main_stack.widget(1)
-                self.main_stack.removeWidget(old)
-                old.deleteLater()
-
-            app_layout = AppLayout(
+            self._clear_app_widget()
+            app = AppLayout(
                 role=username,
-                db_manager=self.db,
+                db=self.db,
                 logout_callback=self.handle_logout,
             )
-            self.main_stack.addWidget(app_layout)
-            self.main_stack.setCurrentIndex(1)
+            self.stack.addWidget(app)           # índice 1
+            self.stack.setCurrentIndex(1)
         else:
             self.login_page.mostrar_error("Usuario o contraseña incorrectos.")
 
     def handle_logout(self):
-        self.main_stack.setCurrentIndex(0)
+        self.stack.setCurrentIndex(0)
         self.login_page.limpiar_campos()
-        if self.main_stack.count() > 1:
-            old = self.main_stack.widget(1)
-            self.main_stack.removeWidget(old)
+        self._clear_app_widget()
+
+    def _clear_app_widget(self):
+        if self.stack.count() > 1:
+            old = self.stack.widget(1)
+            self.stack.removeWidget(old)
             old.deleteLater()

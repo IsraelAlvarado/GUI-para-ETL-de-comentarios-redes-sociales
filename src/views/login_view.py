@@ -1,70 +1,46 @@
+"""
+login_view.py — Pantalla de inicio de sesión.
+"""
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
     QPushButton, QLabel, QFrame, QGraphicsDropShadowEffect,
 )
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QRect
-from PySide6.QtGui import QColor, QFont, QPalette, QLinearGradient, QBrush, QPainter
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 
+BG_LEFT   = "#0f1923"
+BG_RIGHT  = "#1a2a3a"
+ACCENT    = "#00d4aa"
+ACCENT2   = "#0099ff"
+TEXT_MAIN = "#e8f4f8"
+TEXT_DIM  = "#7a9ab0"
+CARD_BG   = "#162233"
+BORDER    = "#1e3448"
+ERR_COLOR = "#ff5f6d"
 
-BG_LEFT    = "#0f1923"
-BG_RIGHT   = "#1a2a3a"
-ACCENT     = "#00d4aa"
-ACCENT2    = "#0099ff"
-TEXT_MAIN  = "#e8f4f8"
-TEXT_DIM   = "#7a9ab0"
-CARD_BG    = "#162233"
-BORDER     = "#1e3448"
-ERR_COLOR  = "#ff5f6d"
-
-STYLE_BASE = f"""
-    QWidget {{
-        background-color: transparent;
-        color: {TEXT_MAIN};
-        font-family: 'Segoe UI', 'Ubuntu', sans-serif;
-    }}
-"""
-
-STYLE_INPUT = f"""
+_STYLE_BASE  = f"QWidget {{ background-color: transparent; color: {TEXT_MAIN}; font-family: 'Segoe UI', 'Ubuntu', sans-serif; }}"
+_STYLE_INPUT = f"""
     QLineEdit {{
-        background-color: #0d1e2e;
-        color: {TEXT_MAIN};
-        border: 1.5px solid {BORDER};
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 14px;
+        background-color: #0d1e2e; color: {TEXT_MAIN};
+        border: 1.5px solid {BORDER}; border-radius: 8px;
+        padding: 10px 14px; font-size: 14px;
     }}
-    QLineEdit:focus {{
-        border: 1.5px solid {ACCENT};
-    }}
-    QLineEdit::placeholder {{
-        color: {TEXT_DIM};
-    }}
+    QLineEdit:focus {{ border: 1.5px solid {ACCENT}; }}
 """
-
-STYLE_BTN = f"""
+_STYLE_BTN = f"""
     QPushButton {{
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {ACCENT}, stop:1 {ACCENT2});
-        color: #0a1520;
-        border: none;
-        border-radius: 8px;
-        padding: 11px;
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: 1px;
+        background: qlineargradient(x1:0,y1:0,x2:1,y2:0,stop:0 {ACCENT},stop:1 {ACCENT2});
+        color: #0a1520; border: none; border-radius: 8px;
+        padding: 11px; font-size: 14px; font-weight: 700; letter-spacing: 1px;
     }}
     QPushButton:hover {{
-        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {ACCENT2}, stop:1 {ACCENT});
+        background: qlineargradient(x1:0,y1:0,x2:1,y2:0,stop:0 {ACCENT2},stop:1 {ACCENT});
     }}
-    QPushButton:pressed {{
-        padding: 12px 11px 10px 11px;
-    }}
+    QPushButton:pressed {{ padding: 12px 11px 10px 11px; }}
 """
 
 
 class _InputField(QWidget):
-    """Label + QLineEdit apilados verticalmente."""
     def __init__(self, label: str, placeholder: str, echo=QLineEdit.Normal):
         super().__init__()
         layout = QVBoxLayout(self)
@@ -78,11 +54,11 @@ class _InputField(QWidget):
         self.field = QLineEdit()
         self.field.setPlaceholderText(placeholder)
         self.field.setEchoMode(echo)
-        self.field.setStyleSheet(STYLE_INPUT)
+        self.field.setStyleSheet(_STYLE_INPUT)
         self.field.setMinimumHeight(42)
         layout.addWidget(self.field)
 
-    def text(self):
+    def text(self) -> str:
         return self.field.text().strip()
 
     def clear(self):
@@ -93,21 +69,17 @@ class LoginWidget(QWidget):
     def __init__(self, on_login_callback):
         super().__init__()
         self.on_login = on_login_callback
-        self.setStyleSheet(STYLE_BASE)
+        self.setStyleSheet(_STYLE_BASE)
         self._build_ui()
 
     def _build_ui(self):
         root = QHBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
+        root.addWidget(self._left_panel(), 1)
+        root.addWidget(self._right_panel(), 1)
 
-        left = self._make_left_panel()
-        root.addWidget(left, 1)
-
-        right = self._make_right_panel()
-        root.addWidget(right, 1)
-
-    def _make_left_panel(self):
+    def _left_panel(self) -> QWidget:
         panel = QWidget()
         panel.setStyleSheet(f"background-color: {BG_LEFT};")
         layout = QVBoxLayout(panel)
@@ -119,13 +91,10 @@ class LoginWidget(QWidget):
         icon.setAlignment(Qt.AlignCenter)
 
         title = QLabel("ETL\nSentiment")
-        title.setStyleSheet(f"""
-            color: {TEXT_MAIN};
-            font-size: 34px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            line-height: 1.2;
-        """)
+        title.setStyleSheet(
+            f"color: {TEXT_MAIN}; font-size: 34px; font-weight: 800;"
+            f" letter-spacing: 3px; line-height: 1.2;"
+        )
         title.setAlignment(Qt.AlignCenter)
 
         sub = QLabel("Análisis de sentimientos\nconectado a MongoDB")
@@ -143,28 +112,23 @@ class LoginWidget(QWidget):
         layout.addWidget(sub)
         layout.addStretch()
 
-        version = QLabel("v1.0.0")
+        version = QLabel("v1.1.0")
         version.setStyleSheet(f"color: {BORDER}; font-size: 10px;")
         version.setAlignment(Qt.AlignCenter)
         layout.addWidget(version)
         layout.addSpacing(16)
-
         return panel
 
-    def _make_right_panel(self):
+    def _right_panel(self) -> QWidget:
         panel = QWidget()
         panel.setStyleSheet(f"background-color: {BG_RIGHT};")
         outer = QVBoxLayout(panel)
         outer.setAlignment(Qt.AlignCenter)
 
         card = QFrame()
-        card.setStyleSheet(f"""
-            QFrame {{
-                background-color: {CARD_BG};
-                border: 1px solid {BORDER};
-                border-radius: 16px;
-            }}
-        """)
+        card.setStyleSheet(
+            f"QFrame {{ background-color: {CARD_BG}; border: 1px solid {BORDER}; border-radius: 16px; }}"
+        )
         card.setFixedWidth(360)
 
         shadow = QGraphicsDropShadowEffect()
@@ -173,52 +137,47 @@ class LoginWidget(QWidget):
         shadow.setColor(QColor(0, 0, 0, 120))
         card.setGraphicsEffect(shadow)
 
-        card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(36, 40, 36, 40)
-        card_layout.setSpacing(20)
+        lay = QVBoxLayout(card)
+        lay.setContentsMargins(36, 40, 36, 40)
+        lay.setSpacing(20)
 
         heading = QLabel("Bienvenido")
         heading.setStyleSheet(f"color: {TEXT_MAIN}; font-size: 22px; font-weight: 700;")
-
         hint = QLabel("Ingresa tus credenciales para continuar")
         hint.setStyleSheet(f"color: {TEXT_DIM}; font-size: 12px;")
         hint.setWordWrap(True)
 
-        card_layout.addWidget(heading)
-        card_layout.addWidget(hint)
-        card_layout.addSpacing(4)
+        lay.addWidget(heading)
+        lay.addWidget(hint)
+        lay.addSpacing(4)
 
-        self._user_field = _InputField("USUARIO", "admin  /  user")
+        self._user_field = _InputField("USUARIO",    "admin  /  user")
         self._pass_field = _InputField("CONTRASEÑA", "••••••••", QLineEdit.Password)
-        card_layout.addWidget(self._user_field)
-        card_layout.addWidget(self._pass_field)
+        lay.addWidget(self._user_field)
+        lay.addWidget(self._pass_field)
 
         self._lbl_error = QLabel("")
         self._lbl_error.setStyleSheet(f"color: {ERR_COLOR}; font-size: 12px;")
         self._lbl_error.setAlignment(Qt.AlignCenter)
         self._lbl_error.setWordWrap(True)
         self._lbl_error.hide()
-        card_layout.addWidget(self._lbl_error)
+        lay.addWidget(self._lbl_error)
 
         btn = QPushButton("INICIAR SESIÓN")
-        btn.setStyleSheet(STYLE_BTN)
+        btn.setStyleSheet(_STYLE_BTN)
         btn.setMinimumHeight(46)
         btn.setCursor(Qt.PointingHandCursor)
         btn.clicked.connect(self._on_click)
-        # ── FIX: también conectar Enter en ambos campos ──────────────────────
-        self._pass_field.field.returnPressed.connect(self._on_click)
         self._user_field.field.returnPressed.connect(self._on_click)
-        card_layout.addWidget(btn)
+        self._pass_field.field.returnPressed.connect(self._on_click)
+        lay.addWidget(btn)
 
         outer.addWidget(card)
         return panel
 
-    # ── FIX: pasa username Y password al callback ─────────────────────────────
     def _on_click(self):
         self._lbl_error.hide()
-        username = self._user_field.text()
-        password = self._pass_field.text()
-        self.on_login(username, password)
+        self.on_login(self._user_field.text(), self._pass_field.text())
 
     def mostrar_error(self, msg: str):
         self._lbl_error.setText(msg)
