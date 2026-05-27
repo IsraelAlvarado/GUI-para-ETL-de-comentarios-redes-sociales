@@ -311,15 +311,7 @@ db.analisis_sentimientos.createIndex({ fecha: -1 })
 
 ---
 
-## Contribución
 
-1. Haz un fork del repositorio.
-2. Crea una rama con tu feature: `git checkout -b feature/mi-mejora`.
-3. Haz commit de tus cambios: `git commit -m "feat: descripción clara"`.
-4. Sube la rama: `git push origin feature/mi-mejora`.
-5. Abre un Pull Request describiendo los cambios.
-
----
 
 > Desarrollado con Python · PySide6 · MongoDB Atlas · TextBlob
 
